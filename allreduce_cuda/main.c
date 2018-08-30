@@ -65,6 +65,7 @@ static void do_test(int count, int is_cuda, int is_inplace) {
 
 static void run_tests(int *counts, int iters, int rank, int is_cuda, int is_inplace, const char *run_desc) {
     int i;
+    int progress_step = iters/20;
     if (0 == rank) {
         printf("\n=====================================================\n");fflush(stdout);
         printf("TESTING: %s\n", run_desc);fflush(stdout);
@@ -74,15 +75,15 @@ static void run_tests(int *counts, int iters, int rank, int is_cuda, int is_inpl
     for (i=0; i<iters; i++) {
         do_test(counts[i], is_cuda, is_inplace);
         if (0 == rank) {
-            if (i/100*100 == i) {
-                fprintf(stdout, "progress iter %d\n",i);fflush(stdout);
+            if ((i+1)/progress_step*progress_step == i+1) {
+                fprintf(stdout, "progress iter %8d out of %8d\n",i+1,iters);fflush(stdout);
             }
         }
     }    
 }
 int main(int argc, char **argv) {
     int rank, size;
-    int iters = argc > 1 ? atoi(argv[1]) : 1;
+    int iters = argc > 1 ? atoi(argv[1]) : 100;
     int seed  = argc > 2 ? atoi(argv[2]) : -1;
     int i, j, status;
     int *counts;
